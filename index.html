@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flex Business Solution</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Raleway:wght@300&display=swap");
+
+      * {
+        padding: 0px;
+        margin: 0px;
+        box-sizing: border-box;
+        font-family: "Raleway", sans-serif;
+      }
+
+      body {
+        background-color: aliceblue;
+      }
+
+      section {
+        width: 100%;
+        height: 100vh;
+        overflow: scroll;
+        margin: 0 auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .container {
+        width: 600px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .form {
+        width: 100%;
+        padding: 25px;
+        background-color: #fff;
+        border-radius: 10px;
+      }
+
+      input {
+        width: 100%;
+        border: 0px;
+        background-color: aliceblue;
+        padding: 20px;
+        border-radius: 10px;
+        font-size: 20px;
+      }
+
+      #todos {
+        width: 100%;
+        padding: 25px;
+        background-color: #fff;
+        border-radius: 10px;
+        margin-top: 40px;
+      }
+
+      .todo {
+        height: 50px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      input[type="checkbox"] {
+        width: 50px;
+      }
+
+      #error {
+        display: none;
+        color: tomato;
+        padding-top: 25px;
+        text-align: center;
+      }
+
+      .finished {
+        color: aquamarine;
+        text-decoration: line-through;
+      }
+    </style>
+  </head>
+  <body>
+    <section>
+      <div class="container">
+        <div class="form">
+          <input
+            type="text"
+            name="todo"
+            id="todo"
+            placeholder="Cilat jane planet e tua per sot?"
+            autocomplete="off"
+          />
+          <div id="error"></div>
+        </div>
+        <div id="todos"></div>
+      </div>
+    </section>
+    <script>
+      let todos = getTodosFromLS();
+      const todos_div = document.getElementById("todos");
+      const error = document.getElementById("error");
+
+      function getTodosFromLS() {
+        // long form
+        // const ls_todos_s = localStorage.getItem("todos");
+
+        // if (ls_todos_s !== null) {
+        //   const ls_todos = JSON.parse(ls_todos_s);
+        //   return ls_todos.length > 0 ? ls_todos : [];
+        // }
+
+        // return [];
+
+        // short form   [yes]
+        return JSON.parse(localStorage.getItem("todos") || "[]");
+      }
+
+      function updateStorage(todos) {
+        localStorage.setItem("todos", JSON.stringify(todos));
+      }
+
+      function updateStatus(id) {
+        todos = [
+          ...todos.map((todo, index) => {
+            if (index == id) {
+              todo.status = !todo.status;
+              return todo;
+            } else {
+              return todo;
+            }
+          }),
+        ];
+        updateStorage(todos);
+        todos_div.innerHTML = displayTodos(todos);
+      }
+
+      function displayTodos(todos) {
+        let todos_html = "";
+
+        todos.forEach((todo, index) => {
+          todos_html += `
+          <div class="todo">
+            <p class="${todo.status ? "finished" : ""}">${todo.text}</p>
+            <input type="checkbox" class="done" onclick="updateStatus('${index}')"  ${
+            todo.status ? "checked" : ""
+          } />
+          </div>
+          `;
+        });
+
+        return todos_html;
+      }
+
+      const todo = document.getElementById("todo");
+      todo.addEventListener("keyup", (e) => {
+        e.preventDefault();
+        const text = e.target.value;
+
+        switch (e.keyCode) {
+          case 13: // Enter
+            if (text.length > 10) {
+              error.innerHTML = "";
+              error.style.display = "none";
+              todos.push({
+                text: text,
+                status: false,
+              });
+              e.target.value = "";
+              console.log(todos);
+              updateStorage(todos);
+              todos_div.innerHTML = displayTodos(todos);
+            } else {
+              error.innerHTML = "Teksti shume i shkurter!";
+              error.style.display = "block";
+            }
+            break;
+        }
+      });
+
+      todos_div.innerHTML = displayTodos(todos);
+    </script>
+  </body>
+</html>
